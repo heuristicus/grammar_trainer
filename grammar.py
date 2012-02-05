@@ -1,6 +1,9 @@
 #!/usr/bin/python
 
+
 import sys, re, pygtk
+sys.path.append('./dict-parsers')
+from tanakaCorpus import Corpus
 pygtk.require('2.0')
 import gtk
 
@@ -8,14 +11,15 @@ class GrammarLearner():
     """
     """
     
-    def __init__(self, corpus_loc):
+    def __init__(self, corpus_loc = None):
         """
         
         Arguments:
         - `corpus_loc`:
         """
-        self.read_corpus(corpus_loc)
 
+        self.corpus = Corpus(corpus_loc)
+        
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.window.set_title('corpus_search')
         self.window.set_position(gtk.WIN_POS_CENTER)
@@ -23,7 +27,7 @@ class GrammarLearner():
         self.window.connect('destroy', gtk.main_quit)
 
         self.make_gui_widgets()
-                
+
         v1 = gtk.HBox()
         v1.pack_start(self.search_btn, False, False, 0)
         v1.pack_start(self.entry)
@@ -80,13 +84,13 @@ class GrammarLearner():
         res = dia.run()
 
         if res == gtk.RESPONSE_OK:
-            self.read_corpus(dia.get_filename())
+            self.corpus.read_corpus(dia.get_filename())
        
         dia.destroy()
 
     def create_buttons(self):
         self.search_btn = gtk.Button('Search')
-        self.search_btn.connect('clicked', self.do_search, 'search_btn')
+        self.search_btn.connect('clicked', self.query_corpus, 'search_btn')
                 
     def create_treeview(self):
         self.liststore = gtk.ListStore(str, str, bool)
@@ -113,6 +117,9 @@ class GrammarLearner():
             it = model.get_iter(path)
             model[it][2] = not model[it][2]
 
+    def query_corpus(self, widget, event, data=None):
+        self.update_liststore(self.corpus.do_search(self.entry.get_text()))
+
     def no_dict_dialog(self):
         label = gtk.Label('Cannot find any data. You have probably not yet input the location of the Tanaka Corpus.')
         label.set_line_wrap(True)
@@ -123,13 +130,17 @@ class GrammarLearner():
         dialog.run()       
         dialog.destroy()
 
-    def update_liststore(self, data, search_word):
-        self.liststore.clear()
-        for item in data:
-            sp = item[0].split('\t')
-            jp = sp[0]
-            en,id_ = sp[1].split('#ID=')
-            self.liststore.append([self.apply_markup(jp, search_word), en, False])
+    def update_liststore(self, data):
+        if data == -1:
+            self.no_dict_dialog()
+        else:
+            self.liststore.clear()
+            for item in data[1:]:
+                sp = item[0].split('\t')
+                jp = sp[0]
+                en,id_ = sp[1].split('#ID=')
+                self.liststore.append([self.apply_markup(jp, data[0]), en, False])
+                self.status.push(1, 'Found %d sentences containing "%s".'%(len(data[1:]), data[0]))
 
     def apply_markup(self, sentence, word):
         self.highlight_colour = 'red'
@@ -139,7 +150,7 @@ def main():
     gtk.main()
 
 if __name__ == '__main__':
-    if len(sys.argv ==1):
+    if len(sys.argv) == 1:
         GrammarLearner()
     else:
         GrammarLearner(sys.argv[1])
