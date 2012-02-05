@@ -1,3 +1,0 @@
-[submodule "dict-parsers"]
-	path = dict-parsers
-	url = git://github.com/heuristicus/dict-parsers.git
