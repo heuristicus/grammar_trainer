@@ -132,7 +132,7 @@ class GrammarLearner():
 
     def update_liststore(self, data):
         if data == -1:
-            self.no_dict_dialog()
+            no_dict_dialog()
         else:
             self.liststore.clear()
             for item in data[1:]:
@@ -140,7 +140,7 @@ class GrammarLearner():
                 jp = sp[0]
                 en,id_ = sp[1].split('#ID=')
                 self.liststore.append([self.apply_markup(jp, data[0]), en, False])
-                self.status.push(1, 'Found %d sentences containing "%s".'%(len(data[1:]), data[0]))
+            self.status.push(1, 'Found %d sentences containing "%s".'%(len(data[1:]), data[0]))
 
     def apply_markup(self, sentence, word):
         self.highlight_colour = 'red'
