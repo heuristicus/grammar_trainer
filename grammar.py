@@ -11,7 +11,7 @@ class BaseGUI():
     """
     """
     
-    def __init__(self):
+    def __init__(self, dict_loc=None):
         """
         """
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
@@ -19,7 +19,39 @@ class BaseGUI():
         self.window.set_position(gtk.WIN_POS_CENTER)
         self.window.set_size_request(200, 200)
         self.window.connect('destroy', gtk.main_quit)
+
+        self.make_menus()
+
+        box1 = gtk.VBox()
+        box1.pack_start(self.menubar, False, False, 0)
+
+        self.window.add(box1)
+
+        self.window.show_all()
+
+    def make_menus(self):
+        self.menubar = gtk.MenuBar()
+        update_menu = gtk.Menu()
+        update_ = gtk.MenuItem("Update")
+        update_.set_submenu(update_menu)
+
+        browser = gtk.MenuItem("Grammar")
+        browser.connect("activate", self.grammar_browser)
+        update_menu.append(browser)
         
+        file_menu = gtk.Menu()
+        file_ = gtk.MenuItem("File")
+        file_.set_submenu(file_menu)
+
+        exit_ = gtk.MenuItem("Exit")
+        exit_.connect("activate", gtk.main_quit)
+        file_menu.append(exit_)
+
+        self.menubar.append(file_)
+        self.menubar.append(update_)
+
+    def grammar_browser(self, loc_file):
+        print 'ey'
         
 
 class GrammarLearner():
@@ -34,7 +66,7 @@ class GrammarLearner():
         """
 
         self.corpus = Corpus(corpus_loc)
-        
+
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.window.set_title('corpus_search')
         self.window.set_position(gtk.WIN_POS_CENTER)
@@ -166,7 +198,7 @@ def main():
 
 if __name__ == '__main__':
     if len(sys.argv) == 1:
-        GrammarLearner()
+        BaseGUI()
     else:
-        GrammarLearner(sys.argv[1])
+        BaseGUI(sys.argv[1])
     main()
