@@ -7,6 +7,21 @@ from tanakaCorpus import Corpus
 pygtk.require('2.0')
 import gtk
 
+class BaseGUI():
+    """
+    """
+    
+    def __init__(self):
+        """
+        """
+        self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        self.window.set_title('grammer')
+        self.window.set_position(gtk.WIN_POS_CENTER)
+        self.window.set_size_request(200, 200)
+        self.window.connect('destroy', gtk.main_quit)
+        
+        
+
 class GrammarLearner():
     """
     """
